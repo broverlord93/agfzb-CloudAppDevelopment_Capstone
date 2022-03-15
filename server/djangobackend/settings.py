@@ -27,7 +27,7 @@ DEBUG = True
 
 APPEND_SLASH = True
 
-ALLOWED_HOSTS = ["localhost", 'alimani9193.us-south.cf.appdomain.cloud']
+ALLOWED_HOSTS = ["localhost", 'alimani9193.us-south.cf.appdomain.cloud', 'alimani9193.mybluemix.net']
 
 
 # Application definition

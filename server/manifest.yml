@@ -1,11 +1,13 @@
-  applications:
+applications:
   - name: djangoapp
     routes:
-      - route: alimani9193.us-south.cf.appdomain.cloud
+      - route: alimani9193.mybluemix.net
     memory: 128M
-    buildpack: python_buildpack
+    buildpacks:
+      - python_buildpack
   - name: djangoapp-nginx
     routes:
-      - route: alimani9193.us-south.cf.appdomain.cloud/static
+      - route: alimani9193.mybluemix.net/static
     memory: 128M
-    buildpack: staticfile_buildpack
+    buildpacks:
+      - staticfile_buildpack
