@@ -7,6 +7,8 @@ You must complete all the labs to successfully complete the project.
 
 ## Project Breakdown
 
+
+
 **Add user management to the application**
 1. Implement user management using the Django user authentication system.
 2. Set up continuous integration and delivery
