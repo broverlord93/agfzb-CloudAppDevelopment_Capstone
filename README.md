@@ -26,3 +26,9 @@ You must complete all the labs to successfully complete the project.
 **Containerize your application**
 1. Add deployment artifacts to your application
 2. Deploy your application
+
+
+## Using Couchimport
+This project was created in a local development environment rather than in the container environment provided by IBM.<br>
+As such, there are some differences to work around. 
+* From the project root, run `cat cloudant/data/dealerships.json | node node_modules/couchimport/bin/couchimport.bin.js --type "json" --jsonpath "dealerships.*" --database dealerships --url <REPLACE-ME-WITH-CLOUDANT-URL>`. 
