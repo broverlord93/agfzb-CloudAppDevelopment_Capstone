@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@ibm-cloud/cloudant": "^0.0.25",
     "couchimport": "^1.5.3"
   }
 }
