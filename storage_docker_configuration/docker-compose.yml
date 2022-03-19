@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  psql:
+    build:
+      context: ./psql
+    container_name: PostgreSQL_
+    image: 'postgres:latest'
+    ports:
+      - 5432:5432
+    volumes:
+      - ./psql-data/:/var/lib/postregsql/data
+    env_file: .env
