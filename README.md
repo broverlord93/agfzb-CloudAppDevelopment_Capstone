@@ -28,18 +28,26 @@ You must complete all the labs to successfully complete the project.
 2. Deploy your application
 
 
-# Notes 
+# Setup 
 This project was created in a local development environment rather than in the web-container "Theia" environment provided by IBM.<br>
 As such, there are some differences to work around. 
 * ###Using Couchimport
 
-From the project root, run `cat cloudant/data/dealerships.json | node node_modules/couchimport/bin/couchimport.bin.js --type "json" --jsonpath "dealerships.*" --database dealerships --url <REPLACE-ME-WITH-CLOUDANT-URL>`.
+Couchimport is a node.js tool that imports data into Cloudant. In this case, we have pre-defined test data that we want to load into our Cloudant instance. We install Couchimport by running `npm install -g couchimport`. 
+
+Set the following environment variables using the service credentials of your Cloudant instance.
+
+`export IAM_API_KEY="REPLACED IT WITH GENERATED <apikey>"`
+
+`export COUCH_URL="REPLACED IT WITH GENERATED <url>"`
+
+From the project root, run `cat cloudant/data/dealerships.json | node node_modules/couchimport/bin/couchimport.bin.js --type "json" --jsonpath "<THE-TABLE-WE-WANT-TO-IMPORT>.*" --database dealerships --url <REPLACE-ME-WITH-CLOUDANT-URL>`.
 
 * ###Setting Up PostgreSQL
 
-Instead of using the instance provided by IBM using their Theia environment, I chose to set up a local instance using Docker Compose.
+Instead of using the instance provided by IBM using their Theia environment, I chose to set up a local instance using Docker Compose. 
 
-
+In a terminal from the project root, navigate to `storage-docker-configuration` and run `docker-compose up`. On the first run, this will download and install Postgresql into the container and run it. The database will be exposed on the default port `5432` so that we can connect to it. 
 
 
 
