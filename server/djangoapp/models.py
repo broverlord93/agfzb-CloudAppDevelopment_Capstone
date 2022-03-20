@@ -36,7 +36,7 @@ class CarMake(models.Model):
 # - __str__ method to print a car make object
 class CarModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4(), null=False)
-    car_make = models.ForeignKey(CarMake, null=False)
+    car_make = models.ForeignKey(CarMake, null=True, on_delete=models.SET_NULL)
     year = models.DateField(default=now, null=False)
 
     # List of choices for Type field
