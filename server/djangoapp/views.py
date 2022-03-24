@@ -4,26 +4,30 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
 # from .restapis import related methods
+from .restapis import get_dealers_from_cf
+from .restapis import get_dealer_reviews_from_cf
+from .restapis import post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
 import logging
 import json
-
-from server.djangoapp.restapis import get_dealers_from_cf
-from server.djangoapp.restapis import get_dealer_reviews_from_cf
+from django.views.decorators.http import require_http_methods
 
 logger = logging.getLogger(__name__)
+
 
 def about(request):
     context = {}
     if request.method == "GET":
         return render(request, 'djangoapp/about.html', context)
 
+
 def contact(request):
     context = {}
     if request.method == "GET":
         return render(request, 'djangoapp/contact.html', context)
+
 
 def login_request(request):
     context = {}
@@ -44,6 +48,7 @@ def login_request(request):
     else:
         return render(request, 'djangoapp/login.html', context)
 
+
 def logout_request(request):
     # Get the user object based on session id in request
     print("Log out the user `{}`".format(request.user.username))
@@ -51,6 +56,7 @@ def logout_request(request):
     logout(request)
     # Redirect user back to course list view
     return redirect('djangoapp:index')
+
 
 def registration_request(request):
     context = {}
@@ -87,6 +93,7 @@ def registration_request(request):
         else:
             return render(request, 'djangoapp/registration.html', context)
 
+
 def get_dealerships(request):
     if request.method == "GET":
         url = "https://ed9eb290.us-south.apigw.appdomain.cloud/api/dealership"
@@ -97,14 +104,50 @@ def get_dealerships(request):
         # Return a list of dealer short name
         return HttpResponse(dealer_names)
 
-def get_dealer_details(request, dealer_id):
+
+def get_dealership_by_id(request, **kwargs):
+    if request.method == "GET":
+        url = "https://ed9eb290.us-south.apigw.appdomain.cloud/api/dealership"
+        state = kwargs.get('state')
+        dealer_id = kwargs.get('dealerId')
+        print(kwargs)
+        print("GET from {}".format(url))
+        dealership = []
+        if dealer_id:
+            dealership = get_dealers_from_cf(url, dealerId=dealer_id)
+        if state:
+            dealership = get_dealers_from_cf(url, state=state)
+        if dealer_id and state:
+            dealership = get_dealers_from_cf(url, dealerId=dealer_id, state=state)
+        return HttpResponse(dealership)
+
+
+def get_dealer_details(request, dealerId):
     if request.method == 'GET':
         url = "https://ed9eb290.us-south.apigw.appdomain.cloud/api/review"
-        reviews = get_dealer_reviews_from_cf(url, dealer_id)
-        review_text = [].append([review.review for review in reviews])
+        reviews = get_dealer_reviews_from_cf(url, dealerId)
+        review_text = "\n".join([review.__str__() for review in reviews])
         return HttpResponse(review_text)
 
 
 # Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
-# ...
+def add_review(request, dealerId):
+    payload = {'review': {}}
+    payload['review']["dealership"] = dealerId
+    payload['review']["name"] = "Ron Swanson"
+    payload['review']["purchase"] = True
+    payload["review"]['review'] = "Acceptable"
+    payload["purchase_date"] = datetime.utcnow().isoformat()
+    payload['review']["car_make"] = "Alfa-Romeo"
+    payload['review']["car_model"] = "Stelvio"
+    payload['review']["car_year"] = 2022
+    payload['review']["id"] = 2023
+    print("==> PAYLOAD = {}".format(payload))
+    print("REQUEST ==> {}".format(request))
+    if request.method == 'POST':
+        url = "https://ed9eb290.us-south.apigw.appdomain.cloud/api/review/post"
+        print("==> URL -> {}".format(url))
+        response = post_request(url, payload, dealerId=dealerId)
+        print("==> RESPONSE = {}".format(response.text))
+        return HttpResponse(response.text)
+    print("WHY AM I HERE?")
