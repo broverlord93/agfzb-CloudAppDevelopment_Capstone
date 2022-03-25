@@ -67,13 +67,10 @@ def get_dealers_from_cf(url, **kwargs):
         state = kwargs.get('state')
         if dealer_id:
             json_result = get_request(url, dealerId=dealer_id)
-            print("==> DEALER ID PROVIDED")
         if state:
             json_result = get_request(url, state=state)
-            print("==> STATE PROVIDED")
         if (dealer_id and state):
             json_result = get_request(url, state=state, dealerId=dealer_id)
-            print("==> ALL PROVIDED")
         dealers = json_result["body"]
         for d in dealers:
             dealer = CarDealer(
@@ -92,14 +89,9 @@ def get_dealers_from_cf(url, **kwargs):
     else:
         json_result = get_request(url)
     if json_result:
-        print(json_result)
-        # Get the row list in JSON as dealers
         dealers = json_result["body"]
-        # For each dealer object
         for dealer in dealers:
-            # Get its content in `doc` object
             dealer_doc = dealer["doc"]
-            # Create a CarDealer object with values in `doc` object
             dealer_obj = CarDealer(
                 address=dealer_doc["address"],
                 city=dealer_doc["city"],
@@ -116,23 +108,13 @@ def get_dealers_from_cf(url, **kwargs):
     return results
 
 
-# Create a get_dealer_reviews_from_cf method to get reviews by dealer id from a cloud function
 def get_dealer_reviews_from_cf(url, dealerId):
-    # - Call get_request() with specified arguments
-    # - Parse JSON results into a DealerView object list
     results = []
-    # Call get_request with a URL parameter
     json_result = get_request(url, dealerId=dealerId)
-    print(json_result)
     if json_result:
-        # Get the row list in JSON as dealers
         reviews = json_result["body"]["data"]
-        # For each dealer object
         for review in reviews:
-            # Get its content in `doc` object
             review_doc = review
-            print("==> A REVIEW --> {}".format(review_doc))
-            # Create a CarDealer object with values in `doc` object
             review_obj = DealerReview(
                 dealership=review_doc['dealership'],
                 name=review_doc['name'],

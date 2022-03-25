@@ -12,7 +12,12 @@
     <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
 
 </head>
+<script>
+    $(function() {
+        $('#table').bootstrapTable()
+    })
 
+</script>
 <body>
 <!--NAVBAR -->
 <nav class="navbar navbar-dark bg-dark navbar-expand-md">
@@ -55,6 +60,32 @@
 <!--END NAVBAR-->
 
 <!--Add a dealer table here -->
+<table class="table" id="table" data-filter-control="true">
+    <thead>
+    <tr>
+        <th data-field="id">ID</th>
+        <th data-field="name">Name</th>
+        <th data-field="address">Address</th>
+        <th data-field="city">City</th>
+        <th data-field="st" data-filter-control="select">State</th>
+        <th data-field="zip">Zip</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    {% for dealer in dealership_list %}
+    <tr>
+        <td>{{dealer.id}}</td>
+        <td><a href="{% url 'djangoapp:dealer_details' dealer.id %}">{{dealer.full_name}}</a></td>
+        <td>{{dealer.address}}</td>
+        <td>{{dealer.city}}</td>
+        <td>{{dealer.st}}</td>
+        <td>{{dealer.zip}}</td>
+
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
 
 </body>
 
