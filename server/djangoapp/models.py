@@ -38,6 +38,7 @@ class CarModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4(), null=False)
     car_make = models.ForeignKey(CarMake, null=True, on_delete=models.SET_NULL)
     year = models.DateField(default=now, null=False)
+    name = models.CharField(max_length=20, null=False)
 
     # List of choices for Type field
     SUV = 'suv'
@@ -63,10 +64,9 @@ class CarModel(models.Model):
     )
 
     def __str__(self):
-        return self.id + "," + \
-               self.car_make + "," + \
-               self.type + "," + \
-               self.year
+        return self.type + "," + \
+               self.year.isoformat() + "," + \
+               self.name
 
 
 # <HINT> Create a plain Python class `CarDealer` to hold dealer data

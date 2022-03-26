@@ -34,7 +34,9 @@
                 </div>
             </div>
             <div class="float-right">
-                <button class="btn btn-warning">Add Review</button>
+                <button class="btn btn-warning">
+                    <a href="{% url 'djangoapp:add_review' dealerId %}">Add Review</a>
+                </button>
                 <!--TODO: Add link pointing to add_review-->
             </div>
         </ul>

@@ -26,7 +26,6 @@ def get_request(url, **kwargs):
             },
             params=kwargs
         )
-        print("==> RESPONSE URL -> {}".format(response.url))
     except:
         # If any error occurs
         print("Network exception occurred")
@@ -39,7 +38,7 @@ def get_request(url, **kwargs):
 # Create a `post_request` to make HTTP POST requests
 # e.g., response = requests.post(url, params=kwargs, json=payload)
 def post_request(url, json_payload, **kwargs):
-    print("==> JSON PAYLOAD -> {}".format(json_payload))
+    print("==> JSON PAYLOAD -> {}".format(json.dumps(json_payload)))
     try:
         response = requests.post(
             url,
@@ -47,8 +46,9 @@ def post_request(url, json_payload, **kwargs):
                 'Content-Type': 'application/json',
                 'X-IBM-Client-Id': '2cc65619-64e8-411d-bb5b-bd37981d047e'
             },
-            json=json_payload,
-            # params=kwargs
+            # json=json.dumps(json_payload),
+            data=json_payload,
+            params=kwargs
         )
         print(response)
     except:

@@ -5,3 +5,5 @@ Pillow==8.0.1
 psycopg2-binary
 # pg_config
 ibm_watson
+djangorestframework
+django-cors-headers

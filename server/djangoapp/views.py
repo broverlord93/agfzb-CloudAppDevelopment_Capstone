@@ -1,18 +1,18 @@
-from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
-from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404, render, redirect
-# from .models import related models
-# from .restapis import related methods
-from .restapis import get_dealers_from_cf
-from .restapis import get_dealer_reviews_from_cf
-from .restapis import post_request
-from django.contrib.auth import login, logout, authenticate
-from django.contrib import messages
-from datetime import datetime
 import logging
-import json
-from django.views.decorators.http import require_http_methods
+
+from django.contrib.auth import authenticate
+from django.contrib.auth import login
+from django.contrib.auth import logout
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.shortcuts import render
+from rest_framework.decorators import api_view
+
+from .models import CarModel
+from .restapis import get_dealer_reviews_from_cf
+from .restapis import get_dealers_from_cf
+from .restapis import post_request
 
 logger = logging.getLogger(__name__)
 
@@ -126,29 +126,43 @@ def get_dealer_details(request, dealerId):
         url = "https://ed9eb290.us-south.apigw.appdomain.cloud/api/review"
         reviews = get_dealer_reviews_from_cf(url, dealerId)
         context["reviews"] = reviews
+        context["dealerId"] = dealerId
         return render(request, 'djangoapp/dealer_details.html', context)
 
 
 # Create a `add_review` view to submit a review
+@api_view(['GET', 'POST'])
 def add_review(request, dealerId):
-    payload = {'review': {}}
-    payload['review']["dealership"] = dealerId
-    payload['review']["name"] = "Ron Swanson"
-    payload['review']["purchase"] = True
-    payload["review"]['review'] = "Acceptable"
-    payload["purchase_date"] = datetime.utcnow().isoformat()
-    payload['review']["car_make"] = "Alfa-Romeo"
-    payload['review']["car_model"] = "Stelvio"
-    payload['review']["car_year"] = 2022
-    payload['review']["id"] = 2023
-    print("==> PAYLOAD = {}".format(payload))
-    print("REQUEST ==> {}".format(request))
+    context = {
+        "dealerId": dealerId
+    }
+    get_url = url = "https://ed9eb290.us-south.apigw.appdomain.cloud/api/dealership"
+    car_dealer = get_dealers_from_cf(get_url, dealerId=dealerId)
     if request.method == 'POST':
-        url = "https://ed9eb290.us-south.apigw.appdomain.cloud/api/review/post"
-        print("==> URL -> {}".format(url))
-        response = post_request(url, payload, dealerId=dealerId)
-        print("==> RESPONSE = {}".format(response.text))
-        return HttpResponse(response.text)
+        post_url = "https://ed9eb290.us-south.apigw.appdomain.cloud/api/review"
+        form_data = request.POST
+        # print("==> FORM DATA: {}".format(form_data))
+        car = CarModel.objects.get(id=form_data.get('car'))
+        payload = {
+            "review": {
+                'id': 2022,
+                'review': form_data.get('review'),
+                'car_make': car.car_make.name,
+                'car_year': int(car.year.strftime("%Y")),
+                'car_model': car.name,
+                'purchase': True if form_data.get('purchase') == 'on' else False,
+                'purchase_date': form_data.get('purchase_date'),
+                'name': request.user.get_full_name(),
+                'dealership': dealerId
+            }
+        }
+        # print("==> REQUEST: {}".format(request.POST))
+        print("==> POST URL -> {}".format(post_url))
+        # print("==> PAYLOAD: {}".format(payload))
+        response = post_request(url, payload)
+        print("==> RESPONSE = {}".format(response))
+        return redirect('djangoapp:dealer_details', dealerId=dealerId)
     elif request.method == 'GET':
-        context = {}
-        render(request, 'djangoapp/add_review.html', context)
+        context['cars'] = CarModel.objects.all()
+        context['dealership'] = car_dealer[0]
+        return render(request, 'djangoapp/add_review.html', context)
