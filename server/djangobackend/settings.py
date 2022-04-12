@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
 from pathlib import Path
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,8 +27,8 @@ DEBUG = True
 
 APPEND_SLASH = True
 
-ALLOWED_HOSTS = ["localhost", 'alimani9193.us-south.cf.appdomain.cloud', 'alimani9193.mybluemix.net', '127.0.0.1']
-
+# ALLOWED_HOSTS = ["localhost", 'alimani9193.us-south.cf.appdomain.cloud', 'alimani9193.mybluemix.net', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -55,6 +56,18 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT"
+]
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "X-IBM-Client-Id"
+]
 
 ROOT_URLCONF = 'djangobackend.urls'
 

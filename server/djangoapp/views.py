@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.contrib.auth import authenticate
@@ -13,6 +14,7 @@ from .models import CarModel
 from .restapis import get_dealer_reviews_from_cf
 from .restapis import get_dealers_from_cf
 from .restapis import post_request
+from .restapis import analyze_review_sentiments
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +110,6 @@ def get_dealership_by_id(request, **kwargs):
         url = "https://ed9eb290.us-south.apigw.appdomain.cloud/api/dealership"
         state = kwargs.get('state')
         dealer_id = kwargs.get('dealerId')
-        print(kwargs)
         print("GET from {}".format(url))
         dealership = []
         if dealer_id:
@@ -131,7 +132,7 @@ def get_dealer_details(request, dealerId):
 
 
 # Create a `add_review` view to submit a review
-@api_view(['GET', 'POST'])
+# @api_view(['GET', 'POST'])
 def add_review(request, dealerId):
     context = {
         "dealerId": dealerId
@@ -141,7 +142,6 @@ def add_review(request, dealerId):
     if request.method == 'POST':
         post_url = "https://ed9eb290.us-south.apigw.appdomain.cloud/api/review"
         form_data = request.POST
-        # print("==> FORM DATA: {}".format(form_data))
         car = CarModel.objects.get(id=form_data.get('car'))
         payload = {
             "review": {
@@ -153,14 +153,12 @@ def add_review(request, dealerId):
                 'purchase': True if form_data.get('purchase') == 'on' else False,
                 'purchase_date': form_data.get('purchase_date'),
                 'name': request.user.get_full_name(),
-                'dealership': dealerId
+                'dealership': dealerId,
+                'sentiment': analyze_review_sentiments(form_data.get('review'))
             }
         }
-        # print("==> REQUEST: {}".format(request.POST))
-        print("==> POST URL -> {}".format(post_url))
-        # print("==> PAYLOAD: {}".format(payload))
-        response = post_request(url, payload)
-        print("==> RESPONSE = {}".format(response))
+        response = post_request(post_url, payload)
+        print("With url {}, \nresponse => {}".format(post_url, response))
         return redirect('djangoapp:dealer_details', dealerId=dealerId)
     elif request.method == 'GET':
         context['cars'] = CarModel.objects.all()

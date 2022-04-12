@@ -8,13 +8,7 @@ from ibm_watson import NaturalLanguageUnderstandingV1
 from ibm_watson.natural_language_understanding_v1 import Features, SentimentOptions
 
 
-# base_url = 'https://ed9eb290.us-south.apigw.appdomain.cloud/api'
-#             https://ed9eb290.us-south.apigw.appdomain.cloud/api
-# Create a `get_request` to make HTTP GET requests
-# e.g., response = requests.get(url, params=params, headers={'Content-Type': 'application/json'},
-#                                     auth=HTTPBasicAuth('apikey', api_key))
 def get_request(url, **kwargs):
-    print(kwargs)
     print("GET from {} ".format(url))
     try:
         # Call get method of requests library with URL and parameters
@@ -38,19 +32,18 @@ def get_request(url, **kwargs):
 # Create a `post_request` to make HTTP POST requests
 # e.g., response = requests.post(url, params=kwargs, json=payload)
 def post_request(url, json_payload, **kwargs):
-    print("==> JSON PAYLOAD -> {}".format(json.dumps(json_payload)))
     try:
         response = requests.post(
             url,
             headers={
                 'Content-Type': 'application/json',
-                'X-IBM-Client-Id': '2cc65619-64e8-411d-bb5b-bd37981d047e'
+                'X-IBM-Client-Id': '2cc65619-64e8-411d-bb5b-bd37981d047e',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true'
             },
-            # json=json.dumps(json_payload),
-            data=json_payload,
+            json=json_payload,
             params=kwargs
         )
-        print(response)
     except:
         print("Network exception occurred")
     status_code = response.status_code
@@ -114,18 +107,17 @@ def get_dealer_reviews_from_cf(url, dealerId):
     if json_result:
         reviews = json_result["body"]["data"]
         for review in reviews:
-            review_doc = review
             review_obj = DealerReview(
-                dealership=review_doc['dealership'],
-                name=review_doc['name'],
-                purchase=review_doc['purchase'],
-                review=review_doc['review'],
-                purchase_date=review_doc['purchase_date'],
-                car_make=review_doc['car_make'],
-                car_model=review_doc['car_model'],
-                car_year=review_doc['car_year'],
-                # sentiment=review_doc['sentiment'],
-                id=review_doc['id']
+                dealership=review['dealership'],
+                name=review['name'],
+                purchase=review['purchase'],
+                review=review['review'],
+                purchase_date=review['purchase_date'],
+                car_make=review['car_make'],
+                car_model=review['car_model'],
+                car_year=review['car_year'],
+                sentiment=review['sentiment'] if 'sentiment' in review.keys() else None,
+                id=review['id']
             )
             results.append(review_obj)
 
@@ -136,10 +128,10 @@ def get_dealer_reviews_from_cf(url, dealerId):
 def analyze_review_sentiments(text):
     # - Call get_request() with specified arguments
     # - Get the returned sentiment label such as Positive or Negative
-    url = 'https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/20cd0fce-c34c-44e6-8a7d-25e2cc753f61'
-    apikey = 't-NobZ1HFFoyOzrUHTF2pfJg16ee0KnoEMaVHuPjTeTj'
+    url = 'https://api.us-south.natural-language-understanding.watson.cloud.ibm.com'
+    apikey = '288h_Jq1BRQ7JNy2P-zmyKo6AHC89Rxx-6Hv2GlIt9H3'
     authenticator = IAMAuthenticator(apikey)
-    natural_language_understanding = NaturalLanguageUnderstandingV1(version='2021-08-01', authenticator=authenticator)
+    natural_language_understanding = NaturalLanguageUnderstandingV1(version='2022-04-07', authenticator=authenticator)
     natural_language_understanding.set_service_url(url)
     response = natural_language_understanding.analyze(
         text=text,
@@ -147,5 +139,5 @@ def analyze_review_sentiments(text):
             sentiment=SentimentOptions(targets=[text])
         )
     ).get_result()
-    label = json.dumps(response, indent=2)
-    return (label)
+    label = response['sentiment']['document']['label']
+    return label
